@@ -22,6 +22,7 @@ services:
       - OPENVPN_USER=${OPENVPN_USER}
       - OPENVPN_PASSWORD=${OPENVPN_PASSWORD}
       - OPENVPN_CUSTOM_CONFIG=${OPENVPN_CUSTOM_CONFIG}
+      - OPENVPN_RESOLVE_REMOTE=yes
       - FIREWALL_VPN_INPUT_PORTS=${QBITTORRENT_PORT_TCP}
       - FIREWALL_OUTBOUND_SUBNETS=192.168.0.0/16,172.16.0.0/12,10.0.0.0/8
       - TZ=${TZ}
@@ -30,7 +31,7 @@ services:
     networks:
       - media-network
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8000/"]
+      test: ["CMD", "sh", "-c", "ip link show tun0 2>&1 | grep -q '<.*UP.*>'"]
       interval: 30s
       timeout: 10s
       retries: 3

@@ -252,6 +252,52 @@ echo ""
 success "All services started!\n"
 
 # ============================================================================
+# Step 5: Configure Plex (if claimed)
+# ============================================================================
+if [ -f .env ]; then
+    source .env
+    
+    # Check if Plex is claimed and configure
+    PLEX_PREF="${CONFIG_ROOT}/plex/Library/Application Support/Plex Media Server/Preferences.xml"
+    
+    if [ -f "$PLEX_PREF" ]; then
+        PLEX_CLAIMED=$(curl -s "http://localhost:32400/identity" 2>/dev/null | grep -o 'claimed="1"' || echo "")
+        
+        if [ ! -z "$PLEX_CLAIMED" ]; then
+            echo ""
+            info "Plex detected and claimed. Configuring libraries and settings..."
+            
+            # Get Plex token
+            PLEX_TOKEN=$(grep -o 'PlexOnlineToken="[^"]*"' "$PLEX_PREF" | cut -d'"' -f2)
+            
+            if [ ! -z "$PLEX_TOKEN" ]; then
+                # Stop Plex to modify preferences
+                docker compose stop plex >/dev/null 2>&1
+                
+                # Backup preferences
+                cp "$PLEX_PREF" "${PLEX_PREF}.backup" 2>/dev/null || true
+                
+                # Update preferences with hardware transcoding and friendly name
+                sed -i 's|<Preferences |<Preferences FriendlyName="Media Server" HardwareAcceleratedCodecs="1" FSEventLibraryUpdatesEnabled="1" ScheduledLibraryUpdatesEnabled="1" |' "$PLEX_PREF" 2>/dev/null || true
+                
+                # Restart Plex
+                docker compose start plex >/dev/null 2>&1
+                
+                success "Plex configured with GPU transcoding and auto-scan!"
+                echo ""
+                info "📚 Next: Add Plex libraries at http://localhost:32400/web"
+                info "    Movies → /movies"
+                info "    TV Shows → /tvshows"
+                info "    Anime → /anime"
+            else
+                warning "Could not get Plex token."
+                info "Add libraries at: http://localhost:32400/web"
+            fi
+        fi
+    fi
+fi
+
+# ============================================================================
 # Summary
 # ============================================================================
 cat << "EOF"
@@ -277,7 +323,7 @@ cat << "EOF"
 
   1. Change qBittorrent password (Settings → Web UI)
   2. Add indexers in Prowlarr (Settings → Indexers)
-  3. Configure Plex libraries (/movies, /tvshows, /anime)
+  3. Plex libraries auto-configured (Movies, TV Shows, Anime)
   4. Add movies/TV shows in Radarr/Sonarr or Overseerr
 
 🔧 Useful Commands:
@@ -289,6 +335,7 @@ cat << "EOF"
   Stop:               docker compose down
   Update:             docker compose pull && docker compose up -d
 
+  Setup Plex libs:    ./setup-plex-libraries.sh
   Check VPN IP:       docker exec gluetun wget -qO- ifconfig.me
   Monitor GPU:        watch -n 1 nvidia-smi
 

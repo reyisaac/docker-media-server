@@ -31,11 +31,23 @@ The script will:
 - ✓ Generate configuration
 - ✓ Start all services
 
-### Step 3: Configure Services
+### Step 3: Configure Plex (One-Time Setup)
+
+1. Get claim token from https://www.plex.tv/claim/
+2. Add to `.env`: `PLEX_CLAIM=claim-XXXX`
+3. Run: `docker compose up -d plex && sleep 10 && ./setup.sh --skip-deps`
+4. Open http://localhost:32400/web
+5. Click **"+ Add Library"** and add:
+   - **Movies** → `/movies` (16 movies ready)
+   - **TV Shows** → `/tvshows`
+   - **Anime** → `/anime`
+
+**Done!** GPU transcoding and auto-scan are already configured.
+
+### Step 4: Configure Other Services
 
 1. **Change qBittorrent password** → http://localhost:8080 (default: admin/adminadmin)
 2. **Add indexers to Prowlarr** → http://localhost:9696
-3. **Configure Plex libraries** → http://localhost:32400/web
 
 **Done!** Start adding movies and TV shows via Radarr/Sonarr or Overseerr.
 
