@@ -172,26 +172,37 @@ services:
               capabilities: [gpu, video, compute, utility]
     restart: unless-stopped
 
-  # FFmpeg-Watcher - Automated NVENC Transcoding (No UI, just works!)
-  ffmpeg-watcher:
-    build:
-      context: ./ffmpeg-watcher
-      dockerfile: Dockerfile
-    container_name: ffmpeg-watcher
+  # Tdarr - Production-Grade Distributed Transcoding System
+  # Automatically transcodes media library to HEVC using NVENC
+  # Access UI at http://localhost:8265
+  tdarr:
+    image: ghcr.io/haveagitgat/tdarr:latest
+    container_name: tdarr
+    restart: unless-stopped
+    ports:
+      - "8265:8265"  # Web UI
+      - "8266:8266"  # Server port
     environment:
+      - TZ=${TZ}
       - PUID=${PUID}
       - PGID=${PGID}
-      - TZ=${TZ}
-      - NV_CQ=${NV_CQ:-23}
-      - NV_PRESET=${NV_PRESET:-p5}
-      - KEEP_HDR=${KEEP_HDR:-1}
-      - OUTPUT_EXT=${OUTPUT_EXT:-mkv}
-      - CONCURRENT_LIMIT=${CONCURRENT_LIMIT:-2}
+      - UMASK_SET=002
+      - serverIP=0.0.0.0
+      - serverPort=8266
+      - webUIPort=8265
+      - internalNode=true
+      - inContainer=true
+      - nodeName=MainNode
+      - NVIDIA_DRIVER_CAPABILITIES=all
+      - NVIDIA_VISIBLE_DEVICES=all
     volumes:
-      - ${MOVIES_ROOT}:/watch/movies
-      - ${TVSHOWS_ROOT}:/watch/tvshows
-      - ${ANIME_ROOT}:/watch/anime
-      - ${CONFIG_ROOT}/ffmpeg-watcher:/watch/.locks
+      - ${CONFIG_ROOT}/tdarr/server:/app/server
+      - ${CONFIG_ROOT}/tdarr/configs:/app/configs
+      - ${CONFIG_ROOT}/tdarr/logs:/app/logs
+      - ${MOVIES_ROOT}:/media/movies
+      - ${TVSHOWS_ROOT}:/media/tvshows
+      - ${ANIME_ROOT}:/media/anime
+      - ${CONFIG_ROOT}/tdarr/transcode_cache:/temp
     deploy:
       resources:
         reservations:
@@ -199,7 +210,6 @@ services:
             - driver: nvidia
               count: all
               capabilities: [gpu, video, compute, utility]
-    restart: unless-stopped
     networks:
       - media-network
 

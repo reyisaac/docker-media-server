@@ -39,7 +39,7 @@ cat << "EOF"
 ║                                                                   ║
 ║  • VPN-Isolated Torrenting (qBittorrent + ExpressVPN)           ║
 ║  • Automated Media Management (Radarr + Sonarr)                  ║
-║  • GPU Transcoding (FFmpeg + NVENC)                              ║
+║  • GPU Transcoding (Tdarr + NVENC)                               ║
 ║  • Streaming Server (Plex)                                       ║
 ║                                                                   ║
 ╚═══════════════════════════════════════════════════════════════════╝
@@ -129,7 +129,7 @@ info "Step 2/4: Creating directory structure"
 cd "$MEDIA_ROOT"
 
 # Create required directories
-mkdir -p config/{gluetun,qbittorrent,prowlarr,radarr,sonarr,overseerr,bazarr,plex,tailscale,tautulli,ffmpeg-watcher}
+mkdir -p config/{gluetun,qbittorrent,prowlarr,radarr,sonarr,overseerr,bazarr,plex,tailscale,tautulli,tdarr}
 mkdir -p downloads/{complete,incomplete}
 mkdir -p movies tvshows anime manga
 
@@ -195,13 +195,6 @@ OVERSEERR_PORT=5055
 BAZARR_PORT=6767
 TAUTULLI_PORT=8181
 
-# FFmpeg-Watcher (GPU Transcoding)
-NV_CQ=23
-NV_PRESET=p5
-KEEP_HDR=1
-OUTPUT_EXT=mkv
-CONCURRENT_LIMIT=2
-
 # Docker Configuration
 DOCKER_NETWORK=media-network
 PUID=$USER_ID
@@ -233,12 +226,6 @@ success "Environment configured\n"
 # Step 4: Start Services
 # ============================================================================
 info "Step 4/4: Starting services"
-
-# Build custom images if needed
-if [ -d ffmpeg-watcher ]; then
-    info "Building ffmpeg-watcher image..."
-    docker compose build ffmpeg-watcher --quiet || docker compose build ffmpeg-watcher
-fi
 
 # Start all services
 info "Starting Docker containers..."
@@ -317,6 +304,7 @@ cat << "EOF"
   Overseerr          →  http://localhost:5055
   Bazarr             →  http://localhost:6767
   Plex               →  http://localhost:32400/web
+  Tdarr              →  http://localhost:8265
 
 📝 Next Steps:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -324,7 +312,8 @@ cat << "EOF"
   1. Change qBittorrent password (Settings → Web UI)
   2. Add indexers in Prowlarr (Settings → Indexers)
   3. Plex libraries auto-configured (Movies, TV Shows, Anime)
-  4. Add movies/TV shows in Radarr/Sonarr or Overseerr
+  4. Setup Tdarr libraries at http://localhost:8265 (see README)
+  5. Add movies/TV shows in Radarr/Sonarr or Overseerr
 
 🔧 Useful Commands:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -335,7 +324,6 @@ cat << "EOF"
   Stop:               docker compose down
   Update:             docker compose pull && docker compose up -d
 
-  Setup Plex libs:    ./setup-plex-libraries.sh
   Check VPN IP:       docker exec gluetun wget -qO- ifconfig.me
   Monitor GPU:        watch -n 1 nvidia-smi
 

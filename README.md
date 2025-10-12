@@ -58,7 +58,7 @@ The script will:
 Self-hosted media automation with:
 - 🔒 **VPN-Isolated Torrenting** - Only qBittorrent routes through ExpressVPN
 - 🤖 **Automated Management** - Radarr (movies), Sonarr (TV), Prowlarr (indexers)
-- ⚡ **GPU Transcoding** - FFmpeg with NVENC (4K → 8GB in 30 min)
+- ⚡ **GPU Transcoding** - Tdarr with NVENC (4K → 8GB in 30 min)
 - 🎬 **Media Serving** - Plex, Overseerr, Bazarr
 - 🧹 **Auto Cleanup** - Removes downloads after 24h seeding
 - 🛡️ **Kill-Switch** - If VPN drops, qBittorrent has no internet
@@ -85,7 +85,7 @@ Self-hosted media automation with:
 | Overseerr | 5055 | Request management | ✗ LAN |
 | Bazarr | 6767 | Subtitle automation | ✗ LAN |
 | Plex | 32400 | Media server | ✗ LAN |
-| FFmpeg-Watcher | - | GPU transcoding | ✗ LAN |
+| Tdarr | 8265 | Transcoding dashboard + automation | ✗ LAN |
 
 **Default Credentials:**
 - qBittorrent: `admin` / `adminadmin` ⚠️ Change immediately!
@@ -136,7 +136,7 @@ media-automation-stack/
 ├── tvshows/             # TV library
 ├── anime/               # Anime library
 ├── manga/               # Manga library
-├── ffmpeg-watcher/      # Transcoding scripts
+├── config/tdarr/        # Tdarr transcoding system
 ├── .env                 # Your configuration (create from env.example)
 ├── env.example          # Configuration template
 ├── setup.sh             # One-command setup
@@ -210,7 +210,7 @@ docker compose ps
 # View logs
 docker compose logs -f qbittorrent
 docker compose logs -f radarr
-docker compose logs -f ffmpeg-watcher
+docker compose logs -f tdarr
 
 # Restart everything
 docker compose restart
@@ -304,15 +304,28 @@ curl ifconfig.me  # Should be your home IP (different!)
 
 ## 🎯 Advanced Features
 
-### GPU Transcoding
+### GPU Transcoding with Tdarr
 
-FFmpeg-Watcher monitors media folders and automatically transcodes:
+Tdarr is a production-grade distributed transcoding system that automatically processes your media library:
+
+**Features:**
 - **4K movies:** 40-60GB → 8-10GB (80% smaller) in 30-40 min
 - **1080p movies:** 10-20GB → 3-6GB in 5-10 min
 - Keeps all audio tracks, subtitles, and chapters
-- Preserves HDR/4K quality
-- Only replaces if new file is smaller
-- Optimized for RTX 3080 (2 concurrent streams)
+- Preserves HDR/4K quality with 10-bit encoding
+- De-bloats oversized HEVC files
+- Processes existing library + watches for new files
+- **Fully automated** - zero UI configuration needed!
+- **Web UI:** http://localhost:8265 - Real-time progress, statistics (optional)
+
+**Auto-Configuration:**
+Tdarr is pre-configured with optimal settings:
+- **Libraries:** Movies, TV Shows, Anime (all auto-watched)
+- **Codec:** HEVC (H.265) with NVENC GPU encoding
+- **Quality:** CRF 23, 10-bit, slow preset
+- **Container:** MKV with all streams preserved
+
+Just run `docker compose up -d` and it works! No manual setup required.
 
 ### Automatic Download Cleanup
 
@@ -354,13 +367,9 @@ echo '0 3 * * * /usr/local/bin/cleanup-downloads.sh ...'
 ## 🔄 Updates
 
 ```bash
-# Update all Docker images
+# Update all containers to latest versions
 docker compose pull
 docker compose up -d
-
-# Rebuild custom images (ffmpeg-watcher)
-docker compose build ffmpeg-watcher
-docker compose up -d ffmpeg-watcher
 ```
 
 ---
