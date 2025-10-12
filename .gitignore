@@ -1,0 +1,77 @@
+# Environment and secrets
+.env
+.env.local
+.env.*.local
+
+# Docker volumes and configs (contains API keys and passwords)
+config/
+
+# Downloads (large files)
+downloads/
+
+# Media libraries (large files)
+movies/
+tvshows/
+anime/
+manga/
+
+# Logs
+*.log
+logs/
+
+# VPN config (contains personal server info)
+*.ovpn
+vpn-config.ovpn
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*~.nib
+
+# Backup files
+*.bak
+*.backup
+*~
+*.orig
+
+# Temporary files
+*.tmp
+*.temp
+.tmp/
+tmp/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.iml
+.project
+.classpath
+.settings/
+*.sublime-*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+venv/
+ENV/
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Test files
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Docker
+.dockerignore
+
+# Git
+*.patch
+*.diff

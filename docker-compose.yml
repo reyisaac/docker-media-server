@@ -1,0 +1,244 @@
+services:
+  # Gluetun - VPN container that qBittorrent will use
+  gluetun:
+    image: qmcgaw/gluetun:latest
+    container_name: gluetun
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    ports:
+      # qBittorrent WebUI (exposed through Gluetun)
+      - "${QBITTORRENT_WEBUI_PORT}:8080"
+      # qBittorrent torrent ports (exposed through Gluetun)
+      - "${QBITTORRENT_PORT_TCP}:6881/tcp"
+      - "${QBITTORRENT_PORT_UDP}:6881/udp"
+    volumes:
+      - ${CONFIG_ROOT}/gluetun:/gluetun
+      - ${MEDIA_ROOT}/vpn-config.ovpn:/gluetun/custom.conf:ro
+    environment:
+      - VPN_SERVICE_PROVIDER=${VPN_SERVICE_PROVIDER}
+      - VPN_TYPE=${VPN_TYPE}
+      - OPENVPN_USER=${OPENVPN_USER}
+      - OPENVPN_PASSWORD=${OPENVPN_PASSWORD}
+      - OPENVPN_CUSTOM_CONFIG=${OPENVPN_CUSTOM_CONFIG}
+      - FIREWALL_VPN_INPUT_PORTS=${QBITTORRENT_PORT_TCP}
+      - FIREWALL_OUTBOUND_SUBNETS=192.168.0.0/16,172.16.0.0/12,10.0.0.0/8
+      - TZ=${TZ}
+      - HEALTH_VPN_DURATION_INITIAL=30s
+    restart: unless-stopped
+    networks:
+      - media-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # qBittorrent - Shares network namespace with Gluetun (VPN-only egress)
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    network_mode: "service:gluetun"
+    depends_on:
+      gluetun:
+        condition: service_healthy
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - WEBUI_PORT=8080
+    volumes:
+      - ${CONFIG_ROOT}/qbittorrent:/config
+      - ${DOWNLOADS_ROOT}:/downloads
+      - ${MOVIES_ROOT}:/movies
+      - ${TVSHOWS_ROOT}:/tvshows
+      - ${ANIME_ROOT}:/anime
+      - ${MANGA_ROOT}:/manga
+    restart: unless-stopped
+
+  # Prowlarr - Indexer manager (LAN access, no VPN)
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - ${CONFIG_ROOT}/prowlarr:/config
+    ports:
+      - "${PROWLARR_PORT}:9696"
+    restart: unless-stopped
+    networks:
+      - media-network
+
+  # Radarr - Movie management (LAN access, no VPN)
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - ${CONFIG_ROOT}/radarr:/config
+      - ${MOVIES_ROOT}:/movies
+      - ${DOWNLOADS_ROOT}:/downloads
+    ports:
+      - "${RADARR_PORT}:7878"
+    restart: unless-stopped
+    networks:
+      - media-network
+
+  # Sonarr - TV show management (LAN access, no VPN)
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - ${CONFIG_ROOT}/sonarr:/config
+      - ${TVSHOWS_ROOT}:/tvshows
+      - ${ANIME_ROOT}:/anime
+      - ${DOWNLOADS_ROOT}:/downloads
+    ports:
+      - "${SONARR_PORT}:8989"
+    restart: unless-stopped
+    networks:
+      - media-network
+
+  # Overseerr - Request Management for Radarr/Sonarr (LAN access, no VPN)
+  overseerr:
+    image: sctx/overseerr:latest
+    container_name: overseerr
+    environment:
+      - TZ=${TZ}
+      - LOG_LEVEL=info
+    volumes:
+      - ${CONFIG_ROOT}/overseerr:/app/config
+    ports:
+      - "${OVERSEERR_PORT}:5055"
+    restart: unless-stopped
+    networks:
+      - media-network
+
+  # Bazarr - Subtitle Management (LAN access, no VPN)
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:latest
+    container_name: bazarr
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - ${CONFIG_ROOT}/bazarr:/config
+      - ${MOVIES_ROOT}:/movies
+      - ${TVSHOWS_ROOT}:/tvshows
+      - ${ANIME_ROOT}:/anime
+    ports:
+      - "${BAZARR_PORT}:6767"
+    restart: unless-stopped
+    networks:
+      - media-network
+
+  # Plex Media Server - Streaming server with remote access
+  plex:
+    image: lscr.io/linuxserver/plex:latest
+    container_name: plex
+    network_mode: host
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - VERSION=docker
+      - PLEX_CLAIM=${PLEX_CLAIM:-}
+    volumes:
+      - ${CONFIG_ROOT}/plex:/config
+      - ${MOVIES_ROOT}:/movies
+      - ${TVSHOWS_ROOT}:/tvshows
+      - ${ANIME_ROOT}:/anime
+      - ${MANGA_ROOT}:/manga
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu, video, compute, utility]
+    restart: unless-stopped
+
+  # FFmpeg-Watcher - Automated NVENC Transcoding (No UI, just works!)
+  ffmpeg-watcher:
+    build:
+      context: ./ffmpeg-watcher
+      dockerfile: Dockerfile
+    container_name: ffmpeg-watcher
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - NV_CQ=${NV_CQ:-23}
+      - NV_PRESET=${NV_PRESET:-p5}
+      - KEEP_HDR=${KEEP_HDR:-1}
+      - OUTPUT_EXT=${OUTPUT_EXT:-mkv}
+      - CONCURRENT_LIMIT=${CONCURRENT_LIMIT:-2}
+    volumes:
+      - ${MOVIES_ROOT}:/watch/movies
+      - ${TVSHOWS_ROOT}:/watch/tvshows
+      - ${ANIME_ROOT}:/watch/anime
+      - ${CONFIG_ROOT}/ffmpeg-watcher:/watch/.locks
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu, video, compute, utility]
+    restart: unless-stopped
+    networks:
+      - media-network
+
+  # Tailscale - Secure Remote Access
+  tailscale:
+    image: tailscale/tailscale:latest
+    container_name: tailscale
+    hostname: media-server
+    environment:
+      - TS_AUTHKEY=${TAILSCALE_AUTHKEY}
+      - TS_STATE_DIR=/var/lib/tailscale
+      - TS_USERSPACE=false
+    volumes:
+      - ${CONFIG_ROOT}/tailscale:/var/lib/tailscale
+      - /dev/net/tun:/dev/net/tun
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    restart: unless-stopped
+    network_mode: host
+
+  # Download Cleanup - Automatic cleanup of completed downloads after seeding
+  download-cleanup:
+    image: alpine:latest
+    container_name: download-cleanup
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - ${DOWNLOADS_ROOT}:/downloads
+      - ${MEDIA_ROOT}/cleanup-downloads.sh:/usr/local/bin/cleanup-downloads.sh:ro
+    command: >
+      sh -c "apk add --no-cache bash bc &&
+             echo '0 */6 * * * /usr/local/bin/cleanup-downloads.sh >> /var/log/cleanup.log 2>&1' > /etc/crontabs/root &&
+             crond -f -l 2"
+    restart: unless-stopped
+    networks:
+      - media-network
+
+networks:
+  media-network:
+    name: ${DOCKER_NETWORK}
+    driver: bridge
+
