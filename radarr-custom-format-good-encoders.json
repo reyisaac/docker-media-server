@@ -1,0 +1,16 @@
+{
+  "name": "Good Encoders",
+  "includeCustomFormatWhenRenaming": false,
+  "specifications": [
+    {
+      "name": "Good Release Groups",
+      "implementation": "ReleaseGroupSpecification",
+      "negate": false,
+      "required": false,
+      "fields": {
+        "value": "\\b(FLUX|BYNDR|QxR|PSA|Tigole|Joy|HONE|W4F|NTb|TOMMY|MIXED)\\b"
+      }
+    }
+  ]
+}
+

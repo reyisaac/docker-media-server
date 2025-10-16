@@ -1,0 +1,16 @@
+{
+  "name": "x265/HEVC Preferred",
+  "includeCustomFormatWhenRenaming": false,
+  "specifications": [
+    {
+      "name": "x265",
+      "implementation": "ReleaseTitleSpecification",
+      "negate": false,
+      "required": false,
+      "fields": {
+        "value": "\\b(x265|h265|HEVC)\\b"
+      }
+    }
+  ]
+}
+

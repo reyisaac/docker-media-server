@@ -199,6 +199,7 @@ services:
       - ${CONFIG_ROOT}/tdarr/server:/app/server
       - ${CONFIG_ROOT}/tdarr/configs:/app/configs
       - ${CONFIG_ROOT}/tdarr/logs:/app/logs
+      - ${DOWNLOADS_ROOT}:/media/downloads
       - ${MOVIES_ROOT}:/media/movies
       - ${TVSHOWS_ROOT}:/media/tvshows
       - ${ANIME_ROOT}:/media/anime

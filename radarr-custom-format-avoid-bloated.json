@@ -1,0 +1,26 @@
+{
+  "name": "Bloated Releases",
+  "includeCustomFormatWhenRenaming": false,
+  "specifications": [
+    {
+      "name": "Bloated 1080p",
+      "implementation": "SizeSpecification",
+      "negate": false,
+      "required": false,
+      "fields": {
+        "min": 50,
+        "max": 999
+      }
+    },
+    {
+      "name": "Is 1080p",
+      "implementation": "ResolutionSpecification",
+      "negate": false,
+      "required": true,
+      "fields": {
+        "value": 6
+      }
+    }
+  ]
+}
+
