@@ -228,7 +228,7 @@ watch -n 2 nvidia-smi
 ### 3. Test Download Workflow
 
 1. Add a movie in **Overseerr** or **Radarr**
-2. Watch it download to: `/media/isaacreynaldo/Storage/media/downloads` (SSD)
+2. Watch it download to: `${DOWNLOADS_ROOT}` (SSD)
 3. Check **qBittorrent** - should be seeding from SSD
 4. After Radarr imports to library (HDD), Tdarr will process it
 5. Check final file size is reasonable (not bloated)
@@ -237,8 +237,8 @@ watch -n 2 nvidia-smi
 
 Check space regularly:
 ```bash
-df -h /media/isaacreynaldo/Storage     # 1TB SSD
-df -h /media/isaacreynaldo/media8tb     # 8TB HDD
+df -h ${DOWNLOADS_ROOT}     # Downloads drive (e.g., 1TB SSD)
+df -h ${MOVIES_ROOT}        # Media library drive (e.g., 8TB HDD)
 ```
 
 Expected:
@@ -305,9 +305,9 @@ Shows:
 
 ### Check Disk Space
 ```bash
-watch -n 60 'df -h | grep /media/isaacreynaldo'
+watch -n 60 'df -h'
 ```
-Monitors both SSD and HDD usage over time.
+Monitors disk usage over time (SSD and HDD).
 
 ---
 
@@ -334,7 +334,7 @@ docker exec -it tdarr nvidia-smi
 
 **Check 4: Transcode Cache Space?**
 ```bash
-df -h /media/isaacreynaldo/Storage/media/config/tdarr/transcode_cache
+df -h ${CONFIG_ROOT}/tdarr/transcode_cache
 ```
 - Needs free space for temp files
 

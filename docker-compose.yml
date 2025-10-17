@@ -27,6 +27,9 @@ services:
       - FIREWALL_OUTBOUND_SUBNETS=192.168.0.0/16,172.16.0.0/12,10.0.0.0/8
       - TZ=${TZ}
       - HEALTH_VPN_DURATION_INITIAL=30s
+      # DNS Settings - Fix indexer connection issues
+      - DOT=off
+      - DNS_ADDRESS=8.8.8.8
     restart: unless-stopped
     networks:
       - media-network
@@ -71,6 +74,24 @@ services:
       - ${CONFIG_ROOT}/prowlarr:/config
     ports:
       - "${PROWLARR_PORT}:9696"
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    restart: unless-stopped
+    networks:
+      - media-network
+    depends_on:
+      - flaresolverr
+
+  # FlareSolverr - Cloudflare bypass for Prowlarr
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    environment:
+      - LOG_LEVEL=info
+      - TZ=${TZ}
+    ports:
+      - "8191:8191"
     restart: unless-stopped
     networks:
       - media-network
@@ -89,6 +110,9 @@ services:
       - ${DOWNLOADS_ROOT}:/downloads
     ports:
       - "${RADARR_PORT}:7878"
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
     restart: unless-stopped
     networks:
       - media-network
@@ -108,6 +132,9 @@ services:
       - ${DOWNLOADS_ROOT}:/downloads
     ports:
       - "${SONARR_PORT}:8989"
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
     restart: unless-stopped
     networks:
       - media-network
