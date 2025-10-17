@@ -84,10 +84,6 @@ docker-media-server/
 ├── docs/                       # Documentation
 │   ├── SETUP_INSTRUCTIONS.md  # Detailed setup guide
 │   └── RADARR_IMPORT_GUIDE.txt # Quality configuration guide
-├── scripts/                    # Helper scripts
-│   ├── cleanup-downloads.sh   # Auto-cleanup old downloads
-│   ├── disable-sleep-24-7.sh  # 24/7 server optimization
-│   └── fix-login-display.sh   # Display manager fixes
 ├── configs/                    # Optional configurations
 │   └── radarr/                # Radarr custom formats
 └── [data directories]          # Created during setup
@@ -183,7 +179,7 @@ OPENVPN_PASSWORD=your_password
 NV_CQ=23              # Quality: 18-28 (lower=better, 23 is balanced)
 NV_PRESET=p5          # Speed: p1-p7 (higher=slower/better)
 KEEP_HDR=1            # Preserve HDR metadata
-CONCURRENT_LIMIT=2    # Concurrent transcodes (2 optimal for RTX 3080)
+CONCURRENT_LIMIT=2    # Concurrent transcodes (adjust based on your GPU)
 
 # Paths (auto-configured)
 MEDIA_ROOT=/path/to/your/media-stack

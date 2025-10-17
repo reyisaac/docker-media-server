@@ -228,22 +228,22 @@ watch -n 2 nvidia-smi
 ### 3. Test Download Workflow
 
 1. Add a movie in **Overseerr** or **Radarr**
-2. Watch it download to: `${DOWNLOADS_ROOT}` (SSD)
-3. Check **qBittorrent** - should be seeding from SSD
-4. After Radarr imports to library (HDD), Tdarr will process it
+2. Watch it download to: `${DOWNLOADS_ROOT}`
+3. Check **qBittorrent** - should be seeding
+4. After Radarr imports to library, Tdarr will process it
 5. Check final file size is reasonable (not bloated)
 
 ### 4. Verify Disk Usage
 
 Check space regularly:
 ```bash
-df -h ${DOWNLOADS_ROOT}     # Downloads drive (e.g., 1TB SSD)
-df -h ${MOVIES_ROOT}        # Media library drive (e.g., 8TB HDD)
+df -h ${DOWNLOADS_ROOT}     # Downloads drive
+df -h ${MOVIES_ROOT}        # Media library drive
 ```
 
 Expected:
-- Downloads folder grows on SSD
-- Library folder grows on HDD with processed files
+- Downloads folder grows temporarily
+- Library folder grows with processed files
 - Processed files should be smaller than originals if they were bloated
 
 ---
@@ -307,7 +307,7 @@ Shows:
 ```bash
 watch -n 60 'df -h'
 ```
-Monitors disk usage over time (SSD and HDD).
+Monitors disk usage over time.
 
 ---
 
@@ -447,9 +447,9 @@ Your final automated workflow:
    ↓
 2. Radarr/Sonarr searches
    ↓
-3. Downloads to SSD (any quality/size)
+3. Downloads to downloads folder (any quality/size)
    ↓
-4. Import to HDD library
+4. Import to library
    ↓
 5. Tdarr scans library
    ↓
