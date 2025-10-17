@@ -1,4 +1,21 @@
 #!/usr/bin/env bash
+################################################################################
+# Cleanup Downloads Script
+# 
+# Purpose: Automatically removes old files from the downloads folder to free
+#          up space after qBittorrent has finished seeding.
+#
+# Usage: ./scripts/cleanup-downloads.sh
+#        Or run via cron for automated cleanup
+#
+# What it does:
+#   - Deletes files older than 7 days from downloads/complete/
+#   - Preserves active torrents (qBittorrent removes these anyway)
+#   - Safe: Only touches downloads folder, never your media library
+#
+# Note: If you configured qBittorrent to "Remove torrent and files" after
+#       seeding, this script is redundant but acts as a safety net.
+################################################################################
 # Cleanup completed downloads after seeding period
 # Removes files from /downloads/complete/ that are older than 24 hours
 # and no longer being seeded by qBittorrent

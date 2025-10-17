@@ -1,4 +1,22 @@
 #!/bin/bash
+################################################################################
+# Fix Login Display for NVIDIA GPUs
+#
+# Purpose: Fixes GDM (GNOME Display Manager) login screen appearing on a
+#          virtual display instead of your physical monitor.
+#
+# Usage: sudo ./scripts/fix-login-display.sh
+#
+# What it does:
+#   - Detects your physical monitor (HDMI/DisplayPort)
+#   - Configures GDM to use the correct display
+#   - Optionally enables auto-login (skips login screen entirely)
+#   - Creates backup of GDM config
+#
+# When to use: After reboot, if you can't see the login screen on your monitor
+#
+# Requirements: GNOME/GDM, NVIDIA GPU
+################################################################################
 
 # ============================================================================
 # Fix Login Screen on Virtual Display Issue

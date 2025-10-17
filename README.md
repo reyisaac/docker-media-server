@@ -74,6 +74,30 @@ Self-hosted media automation with:
 
 ---
 
+## 📁 Project Structure
+
+```
+docker-media-server/
+├── docker-compose.yml          # Main service definitions
+├── setup.sh                    # One-command setup script
+├── env.example                 # Configuration template
+├── docs/                       # Documentation
+│   ├── SETUP_INSTRUCTIONS.md  # Detailed setup guide
+│   └── RADARR_IMPORT_GUIDE.txt # Quality configuration guide
+├── scripts/                    # Helper scripts
+│   ├── cleanup-downloads.sh   # Auto-cleanup old downloads
+│   ├── disable-sleep-24-7.sh  # 24/7 server optimization
+│   └── fix-login-display.sh   # Display manager fixes
+├── configs/                    # Optional configurations
+│   └── radarr/                # Radarr custom formats
+└── [data directories]          # Created during setup
+    ├── config/                # Service configurations
+    ├── downloads/             # Temporary download location
+    ├── movies/                # Movie library
+    ├── tvshows/               # TV show library
+    └── anime/                 # Anime library
+```
+
 ## 🔧 Services
 
 | Service | Port | Purpose | VPN |
@@ -391,13 +415,15 @@ Optionally backup media files (movies, tvshows, etc.)
 
 ## 🤝 Contributing
 
-Contributions welcome!
+Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
+**Quick Start:**
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+3. Make your changes and test them
+4. Submit a Pull Request
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines, code style, and testing requirements.
 
 ---
 
@@ -415,6 +441,22 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - VPN routing powered by [Gluetun](https://github.com/qdm12/gluetun)
 - Transcoding powered by [FFmpeg](https://ffmpeg.org/) with NVIDIA NVENC
 - Media management by [Radarr](https://radarr.video/), [Sonarr](https://sonarr.tv/), and [Prowlarr](https://prowlarr.com/)
+
+---
+
+## 📚 Documentation
+
+- **[Quick Start](#-quick-start)** - Get running in 15 minutes
+- **[Detailed Setup Guide](docs/SETUP_INSTRUCTIONS.md)** - Advanced configuration
+- **[Quality Settings](docs/RADARR_IMPORT_GUIDE.txt)** - Optimize download quality
+- **[Contributing Guidelines](CONTRIBUTING.md)** - How to contribute
+- **[Troubleshooting](docs/SETUP_INSTRUCTIONS.md#troubleshooting)** - Common issues
+
+## 🔗 Links
+
+- **Repository**: https://github.com/reyisaac/docker-media-server
+- **Issues**: https://github.com/reyisaac/docker-media-server/issues
+- **License**: [MIT](LICENSE)
 
 ---
 

@@ -1,4 +1,23 @@
 #!/bin/bash
+################################################################################
+# Disable Sleep for 24/7 Media Server
+#
+# Purpose: Prevents your media server from going to sleep, hibernating, or
+#          suspending, ensuring 24/7 availability for streaming and downloads.
+#
+# Usage: sudo ./scripts/disable-sleep-24-7.sh
+#
+# What it does:
+#   - Disables systemd sleep/suspend/hibernate targets
+#   - Disables GNOME auto-sleep and screen blanking
+#   - Disables USB autosuspend (prevents drive spindown)
+#   - Enables Docker autostart on boot
+#   - Creates backup of original settings
+#
+# Requirements: GNOME desktop environment (Pop!_OS, Ubuntu with GNOME)
+#
+# Note: Run this once after initial setup. Survives reboots.
+################################################################################
 
 # ============================================================================
 # 24/7 Media Server - Disable ALL Sleep/Suspend
