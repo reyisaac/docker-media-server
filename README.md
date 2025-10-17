@@ -83,7 +83,7 @@ docker-media-server/
 ├── env.example                 # Configuration template
 ├── docs/                       # Documentation
 │   ├── SETUP_INSTRUCTIONS.md  # Detailed setup guide
-│   └── RADARR_IMPORT_GUIDE.txt # Quality configuration guide
+│   └── QUALITY_GUIDE.md       # Quality settings & custom formats
 ├── configs/                    # Optional configurations
 │   └── radarr/                # Radarr custom formats
 └── [data directories]          # Created during setup
@@ -444,7 +444,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - **[Quick Start](#-quick-start)** - Get running in 15 minutes
 - **[Detailed Setup Guide](docs/SETUP_INSTRUCTIONS.md)** - Advanced configuration
-- **[Quality Settings](docs/RADARR_IMPORT_GUIDE.txt)** - Optimize download quality
+- **[Quality Settings Guide](docs/QUALITY_GUIDE.md)** - Optimize downloads & avoid bloat
 - **[Contributing Guidelines](CONTRIBUTING.md)** - How to contribute
 - **[Troubleshooting](docs/SETUP_INSTRUCTIONS.md#troubleshooting)** - Common issues
 
