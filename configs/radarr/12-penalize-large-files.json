@@ -1,0 +1,16 @@
+{
+  "name": "Penalize Large Files",
+  "includeCustomFormatWhenRenaming": false,
+  "specifications": [
+    {
+      "name": "Size Over 20GB",
+      "implementation": "SizeSpecification",
+      "negate": false,
+      "required": true,
+      "fields": {
+        "min": 20,
+        "max": 100
+      }
+    }
+  ]
+}
