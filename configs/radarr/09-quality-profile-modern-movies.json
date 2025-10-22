@@ -1,0 +1,63 @@
+{
+  "name": "Modern Movies High Quality",
+  "upgradeAllowed": true,
+  "cutoff": 0,
+  "items": [
+    {
+      "id": 0,
+      "name": "Bluray-2160p",
+      "items": [],
+      "allowed": true
+    },
+    {
+      "id": 1,
+      "name": "WEBDL-2160p",
+      "items": [],
+      "allowed": true
+    },
+    {
+      "id": 2,
+      "name": "Bluray-1080p",
+      "items": [],
+      "allowed": true
+    },
+    {
+      "id": 3,
+      "name": "WEBDL-1080p",
+      "items": [],
+      "allowed": true
+    },
+    {
+      "id": 4,
+      "name": "HDTV-1080p",
+      "items": [],
+      "allowed": true
+    },
+    {
+      "id": 5,
+      "name": "Bluray-720p",
+      "items": [],
+      "allowed": false
+    },
+    {
+      "id": 6,
+      "name": "WEBDL-720p",
+      "items": [],
+      "allowed": false
+    },
+    {
+      "id": 7,
+      "name": "HDTV-720p",
+      "items": [],
+      "allowed": false
+    },
+    {
+      "id": 8,
+      "name": "SDTV",
+      "items": [],
+      "allowed": false
+    }
+  ],
+  "minFormatScore": 0,
+  "cutoffFormatScore": 0
+}

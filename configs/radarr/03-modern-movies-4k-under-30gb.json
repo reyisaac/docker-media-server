@@ -1,0 +1,34 @@
+{
+  "name": "Modern Movies 4K Under 30GB",
+  "includeCustomFormatWhenRenaming": false,
+  "specifications": [
+    {
+      "name": "Movie Year 2014 or Later",
+      "implementation": "ReleaseTitleSpecification",
+      "negate": false,
+      "required": true,
+      "fields": {
+        "value": "\\b(201[4-9]|202[0-9])\\b"
+      }
+    },
+    {
+      "name": "Is 4K",
+      "implementation": "ResolutionSpecification",
+      "negate": false,
+      "required": true,
+      "fields": {
+        "value": 8
+      }
+    },
+    {
+      "name": "Size Under 30GB",
+      "implementation": "SizeSpecification",
+      "negate": false,
+      "required": true,
+      "fields": {
+        "min": 0,
+        "max": 30
+      }
+    }
+  ]
+}
