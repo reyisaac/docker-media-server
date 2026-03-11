@@ -276,6 +276,68 @@ services:
     networks:
       - media-network
 
+  # icloudpd - Automatic iCloud photo and video download
+  icloudpd:
+    image: boredazfcuk/icloudpd:latest
+    container_name: icloudpd
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - apple_id=${ICLOUD_APPLE_ID}
+      - apple_password=${ICLOUD_PASSWORD}
+      - authentication_type=2FA
+      - download_path=/home/user/iCloud
+      - synchronisation_interval=${ICLOUD_SYNC_INTERVAL:-86400}
+      - convert_heic_to_jpeg=${ICLOUD_CONVERT_HEIC:-False}
+      - jpeg_quality=${ICLOUD_JPEG_QUALITY:-90}
+      - skip_check=${ICLOUD_SKIP_CHECK:-False}
+      - delete_after_download=${ICLOUD_DELETE_AFTER_DOWNLOAD:-False}
+      - config_file=/config/icloudpd.conf
+    volumes:
+      - ${ICLOUD_CONFIG_ROOT}:/config
+      - ${ICLOUD_ROOT}:/home/user/iCloud
+    restart: unless-stopped
+    networks:
+      - media-network
+
+  # PhotoPrism - Photo and video management with face recognition and AI organization
+  photoprism:
+    image: photoprism/photoprism:latest
+    container_name: photoprism
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - PHOTOPRISM_ADMIN_PASSWORD=${PHOTOPRISM_ADMIN_PASSWORD:-insecure}
+      - PHOTOPRISM_SITE_URL=http://localhost:${PHOTOPRISM_PORT:-2342}
+      - PHOTOPRISM_ORIGINALS_PATH=/photoprism/originals
+      - PHOTOPRISM_STORAGE_PATH=/photoprism/storage
+      - PHOTOPRISM_CACHE_PATH=/photoprism/cache
+      - PHOTOPRISM_IMPORT_PATH=/photoprism/import
+      - PHOTOPRISM_BACKUP_PATH=/photoprism/backup
+    ports:
+      - "${PHOTOPRISM_PORT:-2342}:2342"
+    volumes:
+      - ${CONFIG_ROOT}/photoprism/storage:/photoprism/storage
+      - ${CONFIG_ROOT}/photoprism/originals:/photoprism/originals
+      - ${CONFIG_ROOT}/photoprism/cache:/photoprism/cache
+      - ${CONFIG_ROOT}/photoprism/backup:/photoprism/backup
+      - ${PHOTOS_ROOT}:/photoprism/import:ro
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    restart: unless-stopped
+    networks:
+      - media-network
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu, video, compute, utility]
+
 networks:
   media-network:
     name: ${DOCKER_NETWORK}
