@@ -21,7 +21,7 @@ Get your media automation stack running in **3 steps** (~15 minutes):
 ### Step 2: Run Setup
 
 ```bash
-./setup.sh
+./scripts/setup.sh
 ```
 
 The script will:
@@ -35,7 +35,7 @@ The script will:
 
 1. Get claim token from https://www.plex.tv/claim/
 2. Add to `.env`: `PLEX_CLAIM=claim-XXXX`
-3. Run: `docker compose up -d plex && sleep 10 && ./setup.sh --skip-deps`
+3. Run: `docker compose up -d plex && sleep 10 && ./scripts/setup.sh --skip-deps`
 4. Open http://localhost:32400/web
 5. Click **"+ Add Library"** and add:
    - **Movies** → `/movies` (16 movies ready)
@@ -159,7 +159,15 @@ media-automation-stack/
 ├── config/tdarr/        # Tdarr transcoding system
 ├── .env                 # Your configuration (create from env.example)
 ├── env.example          # Configuration template
-├── setup.sh             # One-command setup
+├── media-stack-after-reboot.sh  # Post-reboot helper (restores stack safely)
+├── scripts/             # Utility scripts
+│   ├── setup.sh                 # One-command setup
+│   ├── plex-restart.sh          # Restart Docker Plex safely
+│   ├── plex-fix-conflict.sh     # Disable native Plex, avoid port conflicts
+│   ├── vpn-ovpn-patch.sh        # Patch ExpressVPN .ovpn (hostname → IP)
+│   ├── check-icloud-backup.sh   # iCloud backup verification/report
+│   ├── organize-google-photos.sh# Organize Google Takeout photos
+│   └── turn-off-all-lights.sh   # Turn off RGB / LEDs
 ├── docker-compose.yml   # Container definitions
 └── vpn-config.ovpn     # Your VPN config
 ```
