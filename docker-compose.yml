@@ -31,6 +31,11 @@ services:
       - DOT=off
       - DNS_ADDRESS=8.8.8.8
     restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     networks:
       - media-network
     healthcheck:
@@ -61,6 +66,11 @@ services:
       - ${ANIME_ROOT}:/anime
       - ${MANGA_ROOT}:/manga
     restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   # Prowlarr - Indexer manager (LAN access, no VPN)
   prowlarr:
@@ -78,21 +88,29 @@ services:
       - 8.8.8.8
       - 8.8.4.4
     restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     networks:
       - media-network
     depends_on:
       - flaresolverr
 
-  # FlareSolverr - Cloudflare bypass for Prowlarr
+  # FlareSolverr - Cloudflare bypass for Prowlarr (internal only, not exposed to host)
   flaresolverr:
     image: ghcr.io/flaresolverr/flaresolverr:latest
     container_name: flaresolverr
     environment:
       - LOG_LEVEL=info
       - TZ=${TZ}
-    ports:
-      - "8191:8191"
     restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     networks:
       - media-network
 
@@ -114,6 +132,11 @@ services:
       - 8.8.8.8
       - 8.8.4.4
     restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     networks:
       - media-network
 
@@ -136,6 +159,11 @@ services:
       - 8.8.8.8
       - 8.8.4.4
     restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     networks:
       - media-network
 
@@ -151,6 +179,11 @@ services:
     ports:
       - "${OVERSEERR_PORT}:5055"
     restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     networks:
       - media-network
 
@@ -170,6 +203,11 @@ services:
     ports:
       - "${BAZARR_PORT}:6767"
     restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     networks:
       - media-network
 
@@ -198,6 +236,11 @@ services:
               count: all
               capabilities: [gpu, video, compute, utility]
     restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   # Tdarr - Production-Grade Distributed Transcoding System
   # Automatically transcodes media library to HEVC using NVENC
@@ -238,6 +281,11 @@ services:
             - driver: nvidia
               count: all
               capabilities: [gpu, video, compute, utility]
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     networks:
       - media-network
 
@@ -257,6 +305,11 @@ services:
       - NET_ADMIN
       - SYS_MODULE
     restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     network_mode: host
 
   # icloudpd - Automatic iCloud photo and video download
@@ -281,6 +334,11 @@ services:
       - ${ICLOUD_CONFIG_ROOT}:/config
       - ${ICLOUD_ROOT}:/home/user/iCloud
     restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     networks:
       - media-network
 
@@ -292,7 +350,7 @@ services:
       - PUID=${PUID}
       - PGID=${PGID}
       - TZ=${TZ}
-      - PHOTOPRISM_ADMIN_PASSWORD=${PHOTOPRISM_ADMIN_PASSWORD:-insecure}
+      - PHOTOPRISM_ADMIN_PASSWORD=${PHOTOPRISM_ADMIN_PASSWORD}
       - PHOTOPRISM_SITE_URL=http://localhost:${PHOTOPRISM_PORT:-2342}
       - PHOTOPRISM_ORIGINALS_PATH=/photoprism/originals
       - PHOTOPRISM_STORAGE_PATH=/photoprism/storage
@@ -303,14 +361,19 @@ services:
       - "${PHOTOPRISM_PORT:-2342}:2342"
     volumes:
       - ${CONFIG_ROOT}/photoprism/storage:/photoprism/storage
-      - ${CONFIG_ROOT}/photoprism/originals:/photoprism/originals
+      - ${PHOTOS_ROOT}/originals:/photoprism/originals
       - ${CONFIG_ROOT}/photoprism/cache:/photoprism/cache
       - ${CONFIG_ROOT}/photoprism/backup:/photoprism/backup
-      - ${PHOTOS_ROOT}:/photoprism/import:ro
+      - ${PHOTOS_ROOT}/import:/photoprism/import
     dns:
       - 8.8.8.8
       - 8.8.4.4
     restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     networks:
       - media-network
     deploy:
@@ -325,4 +388,3 @@ networks:
   media-network:
     name: ${DOCKER_NETWORK}
     driver: bridge
-
