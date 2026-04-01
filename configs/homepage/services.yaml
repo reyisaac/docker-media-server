@@ -9,6 +9,7 @@
           key: {{HOMEPAGE_VAR_PLEX_TOKEN}}
 
     - Seerr:
+    - Overseerr:
         icon: overseerr.png
         href: http://localhost:5055
         description: Request movies & TV
