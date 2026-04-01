@@ -60,7 +60,6 @@ Self-hosted media automation with:
 - 🤖 **Automated Management** - Radarr (movies), Sonarr (TV), Prowlarr (indexers)
 - ⚡ **GPU Transcoding** - Tdarr with NVENC (4K → 8GB in 30 min)
 - 🎬 **Media Serving** - Plex, Overseerr, Bazarr
-- 🧹 **Auto Cleanup** - Removes downloads after 24h seeding
 - 🛡️ **Kill-Switch** - If VPN drops, qBittorrent has no internet
 
 ---
@@ -100,12 +99,16 @@ docker-media-server/
 |---------|------|---------|-----|
 | qBittorrent | 8080 | Torrent client | ✓ ExpressVPN |
 | Prowlarr | 9696 | Indexer manager | ✗ LAN |
+| FlareSolverr | 8191 | Cloudflare bypass for Prowlarr | ✗ LAN |
 | Radarr | 7878 | Movie automation | ✗ LAN |
 | Sonarr | 8989 | TV automation | ✗ LAN |
 | Overseerr | 5055 | Request management | ✗ LAN |
 | Bazarr | 6767 | Subtitle automation | ✗ LAN |
 | Plex | 32400 | Media server | ✗ LAN |
-| Tdarr | 8265 | Transcoding dashboard + automation | ✗ LAN |
+| Tdarr | 8265 | Transcoding (GPU NVENC) | ✗ LAN |
+| PhotoPrism | 2342 | Photo library + AI organization | ✗ LAN |
+| icloudpd | — | iCloud photo sync | ✗ LAN |
+| Tailscale | — | Secure remote access | ✗ LAN |
 
 **Default Credentials:**
 - qBittorrent: `admin` / `adminadmin` ⚠️ Change immediately!
@@ -127,11 +130,11 @@ Local Network
     ↓
 Prowlarr ↔ Radarr/Sonarr
     ↓           ↓
-Indexers   Downloads → Auto Cleanup (24h)
+Indexers   Downloads
                ↓
          Media Folders
                ↓
-        FFmpeg-Watcher (GPU transcode)
+          Tdarr (GPU transcode)
                ↓
              Plex
 ```
@@ -140,7 +143,6 @@ Indexers   Downloads → Auto Cleanup (24h)
 - Only qBittorrent uses VPN (`network_mode: service:gluetun`)
 - Other services use direct LAN access
 - VPN kill-switch: If VPN drops, qBittorrent loses all connectivity
-- Downloads auto-cleaned after 24h seeding
 
 ---
 
@@ -149,7 +151,7 @@ Indexers   Downloads → Auto Cleanup (24h)
 ```
 media-automation-stack/
 ├── config/              # Service configurations (auto-generated)
-├── downloads/           # Torrent downloads (auto-cleanup after 24h)
+├── downloads/           # Torrent downloads (qBittorrent auto-removes after seeding)
 │   ├── complete/
 │   └── incomplete/
 ├── movies/              # Movie library
@@ -182,12 +184,6 @@ The `setup.sh` script creates `.env` automatically, but you can customize it:
 # VPN Credentials
 OPENVPN_USER=your_username
 OPENVPN_PASSWORD=your_password
-
-# GPU Transcoding Settings
-NV_CQ=23              # Quality: 18-28 (lower=better, 23 is balanced)
-NV_PRESET=p5          # Speed: p1-p7 (higher=slower/better)
-KEEP_HDR=1            # Preserve HDR metadata
-CONCURRENT_LIMIT=2    # Concurrent transcodes (adjust based on your GPU)
 
 # Paths (auto-configured)
 MEDIA_ROOT=/path/to/your/media-stack
@@ -223,9 +219,9 @@ http://localhost:8989 → Search → Add Series → Auto-downloads episodes
 2. Prowlarr searches indexers
 3. qBittorrent downloads via VPN
 4. Radarr/Sonarr imports to media folder
-5. FFmpeg-Watcher transcodes (GPU)
+5. Tdarr transcodes (GPU)
 6. Plex makes available for streaming
-7. After 24h seeding, auto-cleanup removes download
+7. qBittorrent removes download after seeding ratio/time limit
 
 ---
 
@@ -259,8 +255,6 @@ docker exec gluetun wget -qO- ifconfig.me
 # Monitor GPU transcoding
 watch -n 1 nvidia-smi
 
-# Manual cleanup test
-docker exec download-cleanup /usr/local/bin/cleanup-downloads.sh
 ```
 
 ---
@@ -355,19 +349,6 @@ Tdarr is pre-configured with optimal settings:
 
 Just run `docker compose up -d` and it works! No manual setup required.
 
-### Automatic Download Cleanup
-
-Runs every 6 hours, removes downloads older than 24h:
-- Checks for active downloads (skips .!qb, .part files)
-- Logs all actions
-- Shows space freed
-
-Customize in `docker-compose.yml`:
-```yaml
-# Change schedule (default: every 6 hours at 0:00, 6:00, 12:00, 18:00)
-echo '0 3 * * * /usr/local/bin/cleanup-downloads.sh ...' 
-```
-
 ---
 
 ## 📊 How It Works
@@ -379,7 +360,7 @@ echo '0 3 * * * /usr/local/bin/cleanup-downloads.sh ...'
 3. **Download** → qBittorrent downloads via VPN
 4. **Seed** → qBittorrent seeds for 24 hours
 5. **Import** → Radarr/Sonarr move file to media folder (hardlink)
-6. **Transcode** → FFmpeg-Watcher optimizes with GPU
+6. **Transcode** → Tdarr optimizes with GPU (NVENC)
 7. **Serve** → Plex makes available for streaming
 8. **Cleanup** → After 24h, download removed automatically
 
