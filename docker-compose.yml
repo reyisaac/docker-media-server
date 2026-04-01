@@ -167,10 +167,11 @@ services:
     networks:
       - media-network
 
-  # Overseerr - Request Management for Radarr/Sonarr (LAN access, no VPN)
-  overseerr:
-    image: sctx/overseerr:latest
-    container_name: overseerr
+  # Seerr - Request Management for Radarr/Sonarr (successor to Overseerr)
+  seerr:
+    image: ghcr.io/seerr-team/seerr:latest
+    init: true
+    container_name: seerr
     environment:
       - TZ=${TZ}
       - LOG_LEVEL=info
@@ -178,6 +179,12 @@ services:
       - ${CONFIG_ROOT}/overseerr:/app/config
     ports:
       - "${OVERSEERR_PORT}:5055"
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:5055/api/v1/status || exit 1
+      start_period: 20s
+      timeout: 3s
+      interval: 15s
+      retries: 3
     restart: unless-stopped
     logging:
       driver: "json-file"

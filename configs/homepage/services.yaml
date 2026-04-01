@@ -8,13 +8,13 @@
           url: http://localhost:32400
           key: {{HOMEPAGE_VAR_PLEX_TOKEN}}
 
-    - Overseerr:
+    - Seerr:
         icon: overseerr.png
         href: http://localhost:5055
         description: Request movies & TV
         widget:
           type: overseerr
-          url: http://overseerr:5055
+          url: http://seerr:5055
           key: {{HOMEPAGE_VAR_OVERSEERR_API_KEY}}
 
     - Tautulli:
