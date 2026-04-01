@@ -259,23 +259,6 @@ services:
     restart: unless-stopped
     network_mode: host
 
-  # Download Cleanup - Automatic cleanup of completed downloads after seeding
-  download-cleanup:
-    image: alpine:latest
-    container_name: download-cleanup
-    environment:
-      - TZ=${TZ}
-    volumes:
-      - ${DOWNLOADS_ROOT}:/downloads
-      - ${MEDIA_ROOT}/cleanup-downloads.sh:/usr/local/bin/cleanup-downloads.sh:ro
-    command: >
-      sh -c "apk add --no-cache bash bc &&
-             echo '0 */6 * * * /usr/local/bin/cleanup-downloads.sh >> /var/log/cleanup.log 2>&1' > /etc/crontabs/root &&
-             crond -f -l 2"
-    restart: unless-stopped
-    networks:
-      - media-network
-
   # icloudpd - Automatic iCloud photo and video download
   icloudpd:
     image: boredazfcuk/icloudpd:latest

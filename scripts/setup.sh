@@ -129,7 +129,7 @@ info "Step 2/4: Creating directory structure"
 cd "$MEDIA_ROOT"
 
 # Create required directories
-mkdir -p config/{gluetun,qbittorrent,prowlarr,radarr,sonarr,overseerr,bazarr,plex,tailscale,tautulli,tdarr}
+mkdir -p config/{gluetun,qbittorrent,prowlarr,radarr,sonarr,overseerr,bazarr,plex,tailscale,tdarr,icloudpd,photoprism}
 mkdir -p downloads/{complete,incomplete}
 mkdir -p movies tvshows anime manga
 
@@ -193,7 +193,7 @@ RADARR_PORT=7878
 SONARR_PORT=8989
 OVERSEERR_PORT=5055
 BAZARR_PORT=6767
-TAUTULLI_PORT=8181
+PHOTOPRISM_PORT=2342
 
 # Docker Configuration
 DOCKER_NETWORK=media-network

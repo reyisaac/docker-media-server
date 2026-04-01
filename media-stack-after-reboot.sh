@@ -22,7 +22,7 @@ echo ""
 # 2) If .ovpn has a hostname in 'remote', resolve to IP (Gluetun requires IP)
 if grep -qE '^\s*remote\s+[a-zA-Z0-9.-]+\s+[0-9]+' ./vpn-config.ovpn 2>/dev/null; then
   echo "Patching VPN config (hostname -> IP)..."
-  ./vpn-ovpn-patch.sh || true
+  ./scripts/vpn-ovpn-patch.sh || true
 else
   echo "VPN config remote already an IP or not found. Skipping patch."
 fi
