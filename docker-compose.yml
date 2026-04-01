@@ -384,6 +384,102 @@ services:
               count: all
               capabilities: [gpu, video, compute, utility]
 
+  # Tautulli - Plex monitoring and analytics
+  tautulli:
+    image: lscr.io/linuxserver/tautulli:latest
+    container_name: tautulli
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - ${CONFIG_ROOT}/tautulli:/config
+    ports:
+      - "${TAUTULLI_PORT:-8181}:8181"
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - media-network
+
+  # Unpackerr - Extracts compressed downloads for Radarr/Sonarr
+  unpackerr:
+    image: golift/unpackerr:latest
+    container_name: unpackerr
+    environment:
+      - TZ=${TZ}
+      - UN_RADARR_0_URL=http://radarr:7878
+      - UN_RADARR_0_API_KEY=${RADARR_API_KEY}
+      - UN_SONARR_0_URL=http://sonarr:8989
+      - UN_SONARR_0_API_KEY=${SONARR_API_KEY}
+    volumes:
+      - ${DOWNLOADS_ROOT}:/downloads
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - media-network
+
+  # Scrutiny - HDD/NVMe SMART monitoring and alerting
+  scrutiny:
+    image: ghcr.io/analogj/scrutiny:master-omnibus
+    container_name: scrutiny
+    privileged: true
+    devices:
+      - /dev/sda:/dev/sda
+      - /dev/sdb:/dev/sdb
+      - /dev/nvme0n1:/dev/nvme0n1
+    volumes:
+      - ${CONFIG_ROOT}/scrutiny:/opt/scrutiny/config
+      - ${CONFIG_ROOT}/scrutiny/influxdb:/opt/scrutiny/influxdb
+      - /run/udev:/run/udev:ro
+    ports:
+      - "${SCRUTINY_PORT:-8082}:8080"
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - media-network
+
+  # Homepage - Unified dashboard for all services
+  homepage:
+    image: ghcr.io/gethomepage/homepage:latest
+    container_name: homepage
+    environment:
+      - HOMEPAGE_VAR_PLEX_TOKEN=${PLEX_TOKEN}
+      - HOMEPAGE_VAR_TAUTULLI_API_KEY=${TAUTULLI_API_KEY}
+      - HOMEPAGE_VAR_RADARR_API_KEY=${RADARR_API_KEY}
+      - HOMEPAGE_VAR_SONARR_API_KEY=${SONARR_API_KEY}
+      - HOMEPAGE_VAR_PROWLARR_API_KEY=${PROWLARR_API_KEY}
+      - HOMEPAGE_VAR_OVERSEERR_API_KEY=${OVERSEERR_API_KEY}
+      - HOMEPAGE_VAR_QBIT_PASSWORD=${QBITTORRENT_PASSWORD}
+    volumes:
+      - ${CONFIG_ROOT}/homepage:/app/config
+      # To reset homepage config: cp configs/homepage/*.yaml config/homepage/
+      - ${MOVIES_ROOT}:/media/movies:ro
+      - ${TVSHOWS_ROOT}:/media/tvshows:ro
+      - ${ANIME_ROOT}:/media/anime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    ports:
+      - "${HOMEPAGE_PORT:-3000}:3000"
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - media-network
+
 networks:
   media-network:
     name: ${DOCKER_NETWORK}

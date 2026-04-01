@@ -1,0 +1,92 @@
+- Media:
+    - Plex:
+        icon: plex.png
+        href: http://localhost:32400/web
+        description: Media streaming
+        widget:
+          type: plex
+          url: http://localhost:32400
+          key: {{HOMEPAGE_VAR_PLEX_TOKEN}}
+
+    - Overseerr:
+        icon: overseerr.png
+        href: http://localhost:5055
+        description: Request movies & TV
+        widget:
+          type: overseerr
+          url: http://overseerr:5055
+          key: {{HOMEPAGE_VAR_OVERSEERR_API_KEY}}
+
+    - Tautulli:
+        icon: tautulli.png
+        href: http://localhost:8181
+        description: Plex analytics
+        widget:
+          type: tautulli
+          url: http://tautulli:8181
+          apiKey: {{HOMEPAGE_VAR_TAUTULLI_API_KEY}}
+
+    - Bazarr:
+        icon: bazarr.png
+        href: http://localhost:6767
+        description: Subtitle management
+
+- Downloads:
+    - qBittorrent:
+        icon: qbittorrent.png
+        href: http://localhost:8080
+        description: Torrent client (VPN)
+        widget:
+          type: qbittorrent
+          url: http://localhost:8080
+          username: admin
+          password: {{HOMEPAGE_VAR_QBIT_PASSWORD}}
+
+    - Radarr:
+        icon: radarr.png
+        href: http://localhost:7878
+        description: Movie automation
+        widget:
+          type: radarr
+          url: http://radarr:7878
+          key: {{HOMEPAGE_VAR_RADARR_API_KEY}}
+
+    - Sonarr:
+        icon: sonarr.png
+        href: http://localhost:8989
+        description: TV automation
+        widget:
+          type: sonarr
+          url: http://sonarr:8989
+          key: {{HOMEPAGE_VAR_SONARR_API_KEY}}
+
+    - Prowlarr:
+        icon: prowlarr.png
+        href: http://localhost:9696
+        description: Indexer manager
+        widget:
+          type: prowlarr
+          url: http://prowlarr:9696
+          key: {{HOMEPAGE_VAR_PROWLARR_API_KEY}}
+
+- System:
+    - Tdarr:
+        icon: tdarr.png
+        href: http://localhost:8265
+        description: GPU transcoding
+
+    - Scrutiny:
+        icon: scrutiny.png
+        href: http://localhost:8082
+        description: Drive health (SMART)
+
+    - Tailscale:
+        icon: tailscale.png
+        href: https://login.tailscale.com/admin/machines
+        description: Remote access
+
+- Photos:
+    - PhotoPrism:
+        icon: photoprism.png
+        href: http://localhost:2342
+        description: Photo library

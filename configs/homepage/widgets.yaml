@@ -1,0 +1,13 @@
+- resources:
+    cpu: true
+    memory: true
+    disk:
+      - /media/movies
+      - /media/tvshows
+      - /media/anime
+
+- datetime:
+    text_size: xl
+    format:
+      timeStyle: short
+      dateStyle: short
