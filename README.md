@@ -1,4 +1,4 @@
-# Media Automation Stack
+# Media Automation Stack 
 
 **Automated Docker-based media server with VPN-isolated torrenting, GPU transcoding, and intelligent download management for Linux.**
 
