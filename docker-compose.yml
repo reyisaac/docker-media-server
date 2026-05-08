@@ -167,10 +167,11 @@ services:
     networks:
       - media-network
 
-  # Overseerr - Request Management for Radarr/Sonarr (LAN access, no VPN)
-  overseerr:
-    image: sctx/overseerr:latest
-    container_name: overseerr
+  # Seerr - Request Management for Radarr/Sonarr (successor to Overseerr)
+  seerr:
+    image: ghcr.io/seerr-team/seerr:latest
+    init: true
+    container_name: seerr
     environment:
       - TZ=${TZ}
       - LOG_LEVEL=info
@@ -178,6 +179,12 @@ services:
       - ${CONFIG_ROOT}/overseerr:/app/config
     ports:
       - "${OVERSEERR_PORT}:5055"
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:5055/api/v1/status || exit 1
+      start_period: 20s
+      timeout: 3s
+      interval: 15s
+      retries: 3
     restart: unless-stopped
     logging:
       driver: "json-file"
@@ -288,6 +295,86 @@ services:
         max-file: "3"
     networks:
       - media-network
+
+  tdarr-node-2:
+    image: ghcr.io/haveagitgat/tdarr_node:latest
+    container_name: tdarr-node-2
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - UMASK_SET=002
+      - serverIP=tdarr
+      - serverPort=8266
+      - inContainer=true
+      - nodeName=GPUNode2
+      - NVIDIA_DRIVER_CAPABILITIES=all
+      - NVIDIA_VISIBLE_DEVICES=all
+    volumes:
+      - ${CONFIG_ROOT}/tdarr/node2-configs:/app/configs
+      - ${CONFIG_ROOT}/tdarr/logs:/app/logs
+      - ${DOWNLOADS_ROOT}:/media/downloads
+      - ${MOVIES_ROOT}:/media/movies
+      - ${TVSHOWS_ROOT}:/media/tvshows
+      - ${ANIME_ROOT}:/media/anime
+      - ${CONFIG_ROOT}/tdarr/transcode_cache:/temp
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu, video, compute, utility]
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - media-network
+    depends_on:
+      - tdarr
+
+  tdarr-node-3:
+    image: ghcr.io/haveagitgat/tdarr_node:latest
+    container_name: tdarr-node-3
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - UMASK_SET=002
+      - serverIP=tdarr
+      - serverPort=8266
+      - inContainer=true
+      - nodeName=GPUNode3
+      - NVIDIA_DRIVER_CAPABILITIES=all
+      - NVIDIA_VISIBLE_DEVICES=all
+    volumes:
+      - ${CONFIG_ROOT}/tdarr/node3-configs:/app/configs
+      - ${CONFIG_ROOT}/tdarr/logs:/app/logs
+      - ${DOWNLOADS_ROOT}:/media/downloads
+      - ${MOVIES_ROOT}:/media/movies
+      - ${TVSHOWS_ROOT}:/media/tvshows
+      - ${ANIME_ROOT}:/media/anime
+      - ${CONFIG_ROOT}/tdarr/transcode_cache:/temp
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu, video, compute, utility]
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - media-network
+    depends_on:
+      - tdarr
 
   # Tailscale - Secure Remote Access
   tailscale:
@@ -479,6 +566,26 @@ services:
         max-file: "3"
     networks:
       - media-network
+
+  # Watchtower - Automatically updates Docker containers
+  watchtower:
+    image: containrrr/watchtower:1.7.1
+    container_name: watchtower
+    environment:
+      - TZ=${TZ}
+      - WATCHTOWER_CLEANUP=true
+      - WATCHTOWER_SCHEDULE=0 0 4 * * *
+      - WATCHTOWER_NOTIFICATIONS=shoutrrr
+      - WATCHTOWER_LABEL_ENABLE=false
+      - DOCKER_API_VERSION=1.44
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 networks:
   media-network:
