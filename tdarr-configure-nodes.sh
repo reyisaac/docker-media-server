@@ -1,5 +1,7 @@
 #!/bin/bash
-# Waits for all 3 Tdarr nodes to register then sets 3 GPU workers on each
+# Waits for all 3 Tdarr nodes to register then sets 1 GPU worker on each.
+# RTX 3080 (consumer GPU) is limited to 3 concurrent NVENC sessions total.
+# 3 nodes × 1 worker = 3 sessions = exactly at the limit. More causes error 21.
 
 TDARR_URL="http://localhost:8265"
 EXPECTED_NODES=3
@@ -20,7 +22,7 @@ if [ "$NODE_COUNT" -lt "$EXPECTED_NODES" ] 2>/dev/null; then
   echo "Warning: only $NODE_COUNT nodes connected after ${MAX_WAIT}s, applying settings anyway."
 fi
 
-# Set 3 GPU workers on every node
+# Set 1 GPU worker on every node (3 total = RTX 3080 NVENC session limit)
 curl -s "$TDARR_URL/api/v2/get-nodes" | python3 -c "
 import json, sys, urllib.request
 
@@ -31,11 +33,12 @@ for node_id, node in nodes.items():
         'data': {
             'nodeID': node_id,
             'nodeUpdates': {
+                'scheduleEnabled': False,
                 'workerLimits': {
                     'healthcheckcpu': 0,
                     'healthcheckgpu': 0,
                     'transcodecpu': 0,
-                    'transcodegpu': 3
+                    'transcodegpu': 1
                 }
             }
         }
