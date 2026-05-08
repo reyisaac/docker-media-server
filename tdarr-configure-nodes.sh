@@ -33,6 +33,7 @@ for node_id, node in nodes.items():
         'data': {
             'nodeID': node_id,
             'nodeUpdates': {
+                'scheduleEnabled': False,
                 'workerLimits': {
                     'healthcheckcpu': 0,
                     'healthcheckgpu': 0,
