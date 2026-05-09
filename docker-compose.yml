@@ -549,6 +549,8 @@ services:
       - HOMEPAGE_VAR_PROWLARR_API_KEY=${PROWLARR_API_KEY}
       - HOMEPAGE_VAR_OVERSEERR_API_KEY=${OVERSEERR_API_KEY}
       - HOMEPAGE_VAR_QBIT_PASSWORD=${QBITTORRENT_PASSWORD}
+    extra_hosts:
+      - host.docker.internal:host-gateway
     volumes:
       - ${CONFIG_ROOT}/homepage:/app/config
       # To reset homepage config: cp configs/homepage/*.yaml config/homepage/
@@ -566,6 +568,28 @@ services:
         max-file: "3"
     networks:
       - media-network
+
+  # Kometa - Auto-builds Plex collections (franchises, genres, decades, studios)
+  kometa:
+    image: kometateam/kometa:latest
+    container_name: kometa
+    environment:
+      - TZ=${TZ}
+      - KOMETA_TIME=03:00
+      - KOMETA_RUN=false
+      - TMDB_API_KEY=${TMDB_API_KEY:-}
+    volumes:
+      - ${CONFIG_ROOT}/kometa:/config
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    restart: unless-stopped
+    networks:
+      - media-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   # Watchtower - Automatically updates Docker containers
   watchtower:
