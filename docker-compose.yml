@@ -15,14 +15,22 @@ services:
       - "${QBITTORRENT_PORT_UDP}:6881/udp"
     volumes:
       - ${CONFIG_ROOT}/gluetun:/gluetun
-      - ${MEDIA_ROOT}/vpn-config.ovpn:/gluetun/custom.conf:ro
     environment:
+      # Pick ANY Gluetun-supported provider in .env (mullvad, nordvpn, privado,
+      # pia, protonvpn, surfshark, windscribe, ... or "custom" for your own config).
+      # See: https://github.com/qdm12/gluetun-wiki/tree/main/setup/providers
       - VPN_SERVICE_PROVIDER=${VPN_SERVICE_PROVIDER}
-      - VPN_TYPE=${VPN_TYPE}
-      - OPENVPN_USER=${OPENVPN_USER}
-      - OPENVPN_PASSWORD=${OPENVPN_PASSWORD}
-      - OPENVPN_CUSTOM_CONFIG=${OPENVPN_CUSTOM_CONFIG}
+      - VPN_TYPE=${VPN_TYPE:-openvpn}
+      # OpenVPN credentials (used by most OpenVPN providers, and "custom")
+      - OPENVPN_USER=${OPENVPN_USER:-}
+      - OPENVPN_PASSWORD=${OPENVPN_PASSWORD:-}
       - OPENVPN_RESOLVE_REMOTE=yes
+      # WireGuard credentials (used by WireGuard providers, e.g. Mullvad/ProtonVPN)
+      - WIREGUARD_PRIVATE_KEY=${WIREGUARD_PRIVATE_KEY:-}
+      - WIREGUARD_ADDRESSES=${WIREGUARD_ADDRESSES:-}
+      # Optional server selection for provider-based configs
+      - SERVER_COUNTRIES=${SERVER_COUNTRIES:-}
+      - SERVER_CITIES=${SERVER_CITIES:-}
       - FIREWALL_VPN_INPUT_PORTS=${QBITTORRENT_PORT_TCP}
       - FIREWALL_OUTBOUND_SUBNETS=192.168.0.0/16,172.16.0.0/12,10.0.0.0/8
       - TZ=${TZ}
@@ -235,13 +243,6 @@ services:
       - ${TVSHOWS_ROOT}:/tvshows
       - ${ANIME_ROOT}:/anime
       - ${MANGA_ROOT}:/manga
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu, video, compute, utility]
     restart: unless-stopped
     logging:
       driver: "json-file"
@@ -270,8 +271,6 @@ services:
       - internalNode=true
       - inContainer=true
       - nodeName=MainNode
-      - NVIDIA_DRIVER_CAPABILITIES=all
-      - NVIDIA_VISIBLE_DEVICES=all
     volumes:
       - ${CONFIG_ROOT}/tdarr/server:/app/server
       - ${CONFIG_ROOT}/tdarr/configs:/app/configs
@@ -281,13 +280,6 @@ services:
       - ${TVSHOWS_ROOT}:/media/tvshows
       - ${ANIME_ROOT}:/media/anime
       - ${CONFIG_ROOT}/tdarr/transcode_cache:/temp
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu, video, compute, utility]
     logging:
       driver: "json-file"
       options:
@@ -309,8 +301,6 @@ services:
       - serverPort=8266
       - inContainer=true
       - nodeName=GPUNode2
-      - NVIDIA_DRIVER_CAPABILITIES=all
-      - NVIDIA_VISIBLE_DEVICES=all
     volumes:
       - ${CONFIG_ROOT}/tdarr/node2-configs:/app/configs
       - ${CONFIG_ROOT}/tdarr/logs:/app/logs
@@ -319,13 +309,6 @@ services:
       - ${TVSHOWS_ROOT}:/media/tvshows
       - ${ANIME_ROOT}:/media/anime
       - ${CONFIG_ROOT}/tdarr/transcode_cache:/temp
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu, video, compute, utility]
     logging:
       driver: "json-file"
       options:
@@ -349,8 +332,6 @@ services:
       - serverPort=8266
       - inContainer=true
       - nodeName=GPUNode3
-      - NVIDIA_DRIVER_CAPABILITIES=all
-      - NVIDIA_VISIBLE_DEVICES=all
     volumes:
       - ${CONFIG_ROOT}/tdarr/node3-configs:/app/configs
       - ${CONFIG_ROOT}/tdarr/logs:/app/logs
@@ -359,13 +340,6 @@ services:
       - ${TVSHOWS_ROOT}:/media/tvshows
       - ${ANIME_ROOT}:/media/anime
       - ${CONFIG_ROOT}/tdarr/transcode_cache:/temp
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu, video, compute, utility]
     logging:
       driver: "json-file"
       options:
@@ -463,13 +437,6 @@ services:
         max-file: "3"
     networks:
       - media-network
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu, video, compute, utility]
 
   # Tautulli - Plex monitoring and analytics
   tautulli:

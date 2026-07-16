@@ -1,0 +1,70 @@
+# NVIDIA GPU acceleration (OPT-IN)
+#
+# The base docker-compose.yml runs on any machine with NO GPU (Plex software
+# transcoding, Tdarr on CPU, PhotoPrism on CPU). This override re-enables NVIDIA
+# hardware acceleration for Plex, Tdarr (+ worker nodes), and PhotoPrism.
+#
+# Requires: an NVIDIA GPU + driver + the NVIDIA Container Toolkit on the host
+# (on Windows: Docker Desktop + WSL2 with the toolkit installed in WSL2).
+#
+# Enable it either per-command:
+#   docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d
+# or permanently, by setting this in your .env:
+#   COMPOSE_FILE=docker-compose.yml:docker-compose.gpu.yml
+#
+# For AMD/Intel GPUs use VAAPI instead (mount /dev/dri) — see docs/CROSS_PLATFORM.md.
+
+services:
+  plex:
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu, video, compute, utility]
+
+  tdarr:
+    environment:
+      - NVIDIA_DRIVER_CAPABILITIES=all
+      - NVIDIA_VISIBLE_DEVICES=all
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu, video, compute, utility]
+
+  tdarr-node-2:
+    environment:
+      - NVIDIA_DRIVER_CAPABILITIES=all
+      - NVIDIA_VISIBLE_DEVICES=all
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu, video, compute, utility]
+
+  tdarr-node-3:
+    environment:
+      - NVIDIA_DRIVER_CAPABILITIES=all
+      - NVIDIA_VISIBLE_DEVICES=all
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu, video, compute, utility]
+
+  photoprism:
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu, video, compute, utility]
