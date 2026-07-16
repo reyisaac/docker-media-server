@@ -35,10 +35,11 @@ sleep 5
 echo "Starting Plex..."
 docker compose start plex
 
+SERVER_IP="$(hostname -I 2>/dev/null | awk '{print $1}')"
 echo ""
 echo "Wait ~30 seconds, then try your Plex app again."
 echo "From this machine: http://localhost:32400/web"
-echo "From other devices: http://192.168.0.132:32400/web"
+echo "From other devices: http://${SERVER_IP:-<your-server-ip>}:32400/web"
 echo ""
 echo "If still unavailable: get a new claim token from https://www.plex.tv/claim"
 echo "Put it in .env as PLEX_CLAIM=your_token and run: docker compose up -d plex"

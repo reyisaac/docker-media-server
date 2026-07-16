@@ -7,7 +7,8 @@ Wants=network-online.target
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-WorkingDirectory=/media/isaacreynaldo/Storage/media
+# EDIT THIS: absolute path to your cloned repo (the folder containing docker-compose.yml)
+WorkingDirectory=/opt/docker-media-server
 ExecStart=/usr/bin/docker compose up -d --remove-orphans
 ExecStop=/usr/bin/docker compose down
 TimeoutStartSec=300
