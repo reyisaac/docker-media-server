@@ -38,7 +38,7 @@ The script will:
 3. Run: `docker compose up -d plex && sleep 10 && ./scripts/setup.sh --skip-deps`
 4. Open http://localhost:32400/web
 5. Click **"+ Add Library"** and add:
-   - **Movies** → `/movies` (16 movies ready)
+   - **Movies** → `/movies`
    - **TV Shows** → `/tvshows`
    - **Anime** → `/anime`
 
@@ -66,10 +66,11 @@ Self-hosted media automation with:
 
 ## 📦 Prerequisites
 
-- Pop!_OS 22.04+ or Ubuntu-based Linux
-- Docker and Docker Compose (auto-installed by setup script)
-- ExpressVPN account
-- NVIDIA GPU (optional, for hardware transcoding)
+- **Linux** (Pop!_OS 22.04+ / Ubuntu-based) — the primary, best-supported platform. Docker & Docker Compose are auto-installed by the setup script.
+- A VPN account supported by [Gluetun](https://github.com/qdm12/gluetun/wiki/Providers) — the `setup.sh` quick-start uses ExpressVPN, but any Gluetun-supported provider works.
+- **NVIDIA GPU (optional)** — for hardware transcoding in Tdarr and Plex.
+
+> **🪟🍎 Running on Windows or macOS?** The stack itself is portable (all host paths are `${...}` env vars), but Docker Desktop, GPU passthrough, and path formats differ per OS. See **[docs/CROSS_PLATFORM.md](docs/CROSS_PLATFORM.md)** for Windows (WSL2) / macOS setup and the caveats (GPU support in particular).
 
 ---
 
@@ -432,6 +433,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📚 Documentation
 
 - **[Quick Start](#-quick-start)** - Get running in 15 minutes
+- **[Cross-Platform Setup](docs/CROSS_PLATFORM.md)** - Windows (WSL2) & macOS notes, GPU/path caveats
 - **[Detailed Setup Guide](docs/SETUP_INSTRUCTIONS.md)** - Advanced configuration
 - **[Quality Settings Guide](docs/QUALITY_GUIDE.md)** - Optimize downloads & avoid bloat
 - **[Contributing Guidelines](CONTRIBUTING.md)** - How to contribute
