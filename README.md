@@ -1,6 +1,6 @@
 # Media Automation Stack 
 
-**Automated Docker-based media server with VPN-isolated torrenting, GPU transcoding, and intelligent download management for Linux.**
+**Automated Docker-based media server with VPN-isolated torrenting, optional GPU transcoding, and intelligent download management — runs on Linux, Windows (WSL2), or macOS.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
@@ -12,11 +12,9 @@
 
 Get your media automation stack running in **3 steps** (~15 minutes):
 
-### Step 1: Download VPN Config
+### Step 1: Choose Your VPN
 
-1. Go to https://www.expressvpn.com/setup
-2. Download your `.ovpn` configuration file
-3. Save it as `vpn-config.ovpn` in this directory
+Pick any [Gluetun-supported provider](https://github.com/qdm12/gluetun-wiki/tree/main/setup/providers) — Mullvad, NordVPN, PIA, ProtonVPN, Surfshark, and many more. You'll set the provider name + credentials in `.env` in the next step; supported providers need **no config file**. (Bringing your own `.ovpn`? See the custom-VPN notes in `env.example` + `docker-compose.custom-vpn.yml`.)
 
 ### Step 2: Run Setup
 
@@ -26,7 +24,7 @@ Get your media automation stack running in **3 steps** (~15 minutes):
 
 The script will:
 - ✓ Install Docker & NVIDIA drivers (if needed)
-- ✓ Prompt for your ExpressVPN credentials
+- ✓ Prompt for your VPN credentials
 - ✓ Create directory structure
 - ✓ Generate configuration
 - ✓ Start all services
@@ -56,9 +54,9 @@ The script will:
 ## 📋 Overview
 
 Self-hosted media automation with:
-- 🔒 **VPN-Isolated Torrenting** - Only qBittorrent routes through ExpressVPN
+- 🔒 **VPN-Isolated Torrenting** - Only qBittorrent routes through your VPN (any Gluetun provider)
 - 🤖 **Automated Management** - Radarr (movies), Sonarr (TV), Prowlarr (indexers)
-- ⚡ **GPU Transcoding** - Tdarr with NVENC (4K → 8GB in 30 min)
+- ⚡ **Optional GPU Transcoding** - Tdarr with NVENC when you have an NVIDIA GPU (opt-in; CPU otherwise)
 - 🎬 **Media Serving** - Plex, Overseerr, Bazarr
 - 🛡️ **Kill-Switch** - If VPN drops, qBittorrent has no internet
 
@@ -98,7 +96,7 @@ docker-media-server/
 
 | Service | Port | Purpose | VPN |
 |---------|------|---------|-----|
-| qBittorrent | 8080 | Torrent client | ✓ ExpressVPN |
+| qBittorrent | 8080 | Torrent client | ✓ VPN |
 | Prowlarr | 9696 | Indexer manager | ✗ LAN |
 | FlareSolverr | 8191 | Cloudflare bypass for Prowlarr | ✗ LAN |
 | Radarr | 7878 | Movie automation | ✗ LAN |
@@ -328,6 +326,8 @@ curl ifconfig.me  # Should be your home IP (different!)
 ## 🎯 Advanced Features
 
 ### GPU Transcoding with Tdarr
+
+> **GPU is optional and opt-in.** The base stack runs with **no GPU** (Plex software transcoding, Tdarr/PhotoPrism on CPU) so it works on any machine. To turn on NVIDIA acceleration, layer in the override — set `COMPOSE_FILE=docker-compose.yml:docker-compose.gpu.yml` in `.env` (or pass `-f docker-compose.gpu.yml` per command). AMD/Intel GPUs: use VAAPI instead — see [docs/CROSS_PLATFORM.md](docs/CROSS_PLATFORM.md).
 
 Tdarr is a production-grade distributed transcoding system that automatically processes your media library:
 

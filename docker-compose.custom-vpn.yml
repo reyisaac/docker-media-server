@@ -1,0 +1,24 @@
+# Custom OpenVPN config (OPT-IN — "bring your own .ovpn")
+#
+# Most users don't need this: set VPN_SERVICE_PROVIDER in .env to a Gluetun
+# provider name (mullvad, nordvpn, pia, protonvpn, surfshark, ...) and the base
+# compose handles it. Use THIS override only if your provider isn't built into
+# Gluetun and you have your own OpenVPN .ovpn file.
+#
+# Setup:
+#   1. Put your provider's OpenVPN config at ./vpn-config.ovpn (repo root).
+#   2. In .env set:  VPN_SERVICE_PROVIDER=custom
+#                    VPN_TYPE=openvpn
+#                    OPENVPN_CUSTOM_CONFIG=/gluetun/custom.conf
+#                    OPENVPN_USER / OPENVPN_PASSWORD (if your provider needs them)
+#   3. Enable this file per-command:
+#        docker compose -f docker-compose.yml -f docker-compose.custom-vpn.yml up -d
+#      or permanently in .env:
+#        COMPOSE_FILE=docker-compose.yml:docker-compose.custom-vpn.yml
+
+services:
+  gluetun:
+    volumes:
+      - ${MEDIA_ROOT}/vpn-config.ovpn:/gluetun/custom.conf:ro
+    environment:
+      - OPENVPN_CUSTOM_CONFIG=${OPENVPN_CUSTOM_CONFIG:-/gluetun/custom.conf}
